@@ -1,5 +1,6 @@
 import { Honcho } from "@honcho-ai/sdk";
-import { initHook, loadConfig, getSessionForPath, getSessionName, getHonchoClientOptions, isPluginEnabled, getCachedStdin, readStdinText, getObservationMode } from "../config.js";
+import { getInstanceIdForCwd } from "../cache.js";
+import { initHook, loadConfig, applySessionPeer, getSessionForPath, getSessionName, getHonchoClientOptions, isPluginEnabled, getCachedStdin, readStdinText, getObservationMode } from "../config.js";
 import { Spinner } from "../spinner.js";
 import { setMemoryState } from "../state.js";
 import { logHook, logApiCall, setLogContext } from "../log.js";
@@ -108,6 +109,7 @@ export async function handlePreCompact(): Promise<void> {
   }
 
   const cwd = hookInput.workspace_roots?.[0] || hookInput.cwd || process.cwd();
+  applySessionPeer(config, hookInput.session_id || getInstanceIdForCwd(cwd));
   const trigger = hookInput.trigger || "auto";
 
   // Set log context

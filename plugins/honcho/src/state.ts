@@ -7,7 +7,7 @@
 
 import { homedir } from "os";
 import { join } from "path";
-import { writeFileSync, unlinkSync } from "fs";
+import { writeFileSync, unlinkSync, readFileSync } from "fs";
 
 const DIR = join(homedir(), ".honcho");
 
@@ -20,6 +20,47 @@ function stateFile(sessionId?: string): string {
 }
 function sessionFile(sessionId?: string): string {
   return join(DIR, sessionId ? `session-${sessionId}.json` : "session.json");
+}
+function peerFile(sessionId: string): string {
+  return join(DIR, `peer-${sessionId}.json`);
+}
+
+/**
+ * Per-session peer override, set mid-session by the `set_session_peer` MCP
+ * tool (`/honcho:peer`). Hooks and the MCP server read it on every call and
+ * apply it on top of env/config, so a running session can change which peer
+ * its messages are saved under without a relaunch or a config-file write.
+ * Earlier messages keep the peer they were saved with: Honcho has no
+ * re-attribution endpoint.
+ */
+export interface SessionPeerOverride {
+  aiPeer?: string;
+  peerName?: string;
+  setAt: number;
+}
+
+export function getSessionPeer(sessionId?: string | null): SessionPeerOverride | null {
+  if (!sessionId) return null;
+  try {
+    const raw = JSON.parse(readFileSync(peerFile(sessionId), "utf-8"));
+    if (!raw || typeof raw !== "object") return null;
+    const out: SessionPeerOverride = { setAt: Number(raw.setAt) || 0 };
+    if (typeof raw.aiPeer === "string" && raw.aiPeer) out.aiPeer = raw.aiPeer;
+    if (typeof raw.peerName === "string" && raw.peerName) out.peerName = raw.peerName;
+    return out.aiPeer || out.peerName ? out : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setSessionPeer(sessionId: string, patch: { aiPeer?: string; peerName?: string }): SessionPeerOverride {
+  const merged: SessionPeerOverride = { ...(getSessionPeer(sessionId) ?? {}), ...patch, setAt: Date.now() };
+  writeFileSync(peerFile(sessionId), JSON.stringify(merged));
+  return merged;
+}
+
+export function clearSessionPeer(sessionId: string): void {
+  try { unlinkSync(peerFile(sessionId)); } catch { /* already gone */ }
 }
 
 export type MemoryPhase =
@@ -50,7 +91,7 @@ export function setSessionLink(url: string, name: string | undefined, sessionId?
 // Clean up this window's files when its session ends, so they don't accumulate.
 export function clearSessionFiles(sessionId?: string): void {
   if (!sessionId) return;
-  for (const f of [stateFile(sessionId), sessionFile(sessionId)]) {
+  for (const f of [stateFile(sessionId), sessionFile(sessionId), peerFile(sessionId)]) {
     try { unlinkSync(f); } catch { /* already gone */ }
   }
 }

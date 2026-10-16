@@ -1,5 +1,5 @@
 import { Honcho, Session, Peer } from "@honcho-ai/sdk";
-import { initHook, loadConfig, getSessionName, getHonchoClientOptions, isPluginEnabled, getCachedStdin, readStdinText } from "../config.js";
+import { initHook, loadConfig, applySessionPeer, getSessionName, getHonchoClientOptions, isPluginEnabled, getCachedStdin, readStdinText } from "../config.js";
 import { getInstanceIdForCwd, chunkContent, addMessagesBatched } from "../cache.js";
 import { logHook, logApiCall, setLogContext } from "../log.js";
 import { isHarnessInjected, isTerseReply, stripLeadingReminders } from "../prompt-filters.js";
@@ -50,6 +50,7 @@ export async function handleSaveUserMessage(): Promise<void> {
 
   const cwd = hookInput.workspace_roots?.[0] || hookInput.cwd || process.cwd();
   const instanceId = hookInput.session_id || getInstanceIdForCwd(cwd);
+  applySessionPeer(config, instanceId);
   const sessionName = getSessionName(cwd, instanceId || undefined);
 
   setLogContext(cwd, sessionName);

@@ -1,25 +1,21 @@
-import { describe, expect, test, beforeAll, afterAll, mock } from "bun:test";
-import * as realOs from "os";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "fs";
+import { home } from "./helpers/home";
+import { describe, expect, test, beforeAll, afterAll } from "bun:test";
+import { mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
-import { tmpdir } from "os";
 
-// config.ts resolves ~/.honcho at import time, so os.homedir() is mocked
-// to a temp dir before the module is loaded. Each test writes the config
-// file it needs into that dir.
-const home = mkdtempSync(join(tmpdir(), "honcho-env-"));
+// config.ts resolves ~/.honcho at import time, so helpers/home mocks
+// os.homedir() to a temp dir before the module is loaded. Each test writes
+// the config file it needs into that dir.
 const savedEnv = { ...process.env };
 let loadConfig: typeof import("../src/config").loadConfig;
 
 beforeAll(async () => {
-  mock.module("os", () => ({ ...realOs, homedir: () => home }));
   mkdirSync(join(home, ".honcho"), { recursive: true });
   ({ loadConfig } = await import("../src/config"));
 });
 
 afterAll(() => {
   process.env = savedEnv;
-  rmSync(home, { recursive: true, force: true });
 });
 
 function writeConfig(config: Record<string, unknown>): void {

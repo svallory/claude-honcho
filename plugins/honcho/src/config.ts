@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { captureGitState } from "./git.js";
 import { getInstanceIdForCwd, getClaudeInstanceId } from "./cache.js";
+import { getSessionPeer } from "./state.js";
 import { telemetryHeaders } from "@honcho-ai/harness-plugin-core";
 
 function sanitizeForSessionName(s: string): string {
@@ -591,6 +592,11 @@ function mergeWithEnvVars(config: HonchoCLAUDEConfig): HonchoCLAUDEConfig {
   if (process.env.HONCHO_AI_PEER) {
     config.aiPeer = process.env.HONCHO_AI_PEER;
   }
+  // Same shape as HONCHO_AI_PEER: a read-only session (recall on, uploads off)
+  // is a per-launch choice, so the env var must win over the file.
+  if (process.env.HONCHO_SAVE_MESSAGES !== undefined) {
+    config.saveMessages = process.env.HONCHO_SAVE_MESSAGES !== "false";
+  }
   if (process.env.HONCHO_ENABLED === "false") {
     config.enabled = false;
   }
@@ -1031,4 +1037,19 @@ export function setEndpoint(environment?: HonchoEnvironment, baseUrl?: string): 
   if (environment && !VALID_ENVIRONMENTS.has(environment)) return;
   config.endpoint = { environment, baseUrl };
   saveConfig(config);
+}
+
+/**
+ * Apply the per-session peer override (see `setSessionPeer` in state.ts) on top
+ * of a loaded config. Precedence, highest first: session override, env var,
+ * config file. Mutates and returns `config` so call sites can chain it after
+ * `loadConfig()`. A missing session id or override is a no-op.
+ */
+export function applySessionPeer<T extends { aiPeer: string; peerName: string } | null>(config: T, sessionId?: string | null): T {
+  if (!config || !sessionId) return config;
+  const override = getSessionPeer(sessionId);
+  if (!override) return config;
+  if (override.aiPeer) config.aiPeer = override.aiPeer;
+  if (override.peerName) config.peerName = override.peerName;
+  return config;
 }

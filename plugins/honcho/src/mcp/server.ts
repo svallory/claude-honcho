@@ -8,6 +8,7 @@ import { Honcho } from "@honcho-ai/sdk";
 import { existsSync, readFileSync } from "fs";
 import {
   loadConfig,
+  applySessionPeer,
   saveConfig,
   saveRootField,
   coerceBoolean,
@@ -36,8 +37,10 @@ import {
 } from "../config.js";
 import { validateRedactPattern } from "../redact.js";
 import { honchoSessionUrl } from "../styles.js";
+import { getSessionPeer, setSessionPeer, clearSessionPeer } from "../state.js";
 import {
   getLastActiveCwd,
+  getInstanceIdForCwd,
   clearIdCache,
   clearPeerCache,
   clearUserContextOnly,
@@ -92,7 +95,9 @@ function renderCard(rows: [string, string][], title: string): string {
 }
 
 function handleGetConfig(cwd: string) {
-  const cfg = loadConfig();
+  const sessionId = getInstanceIdForCwd(cwd);
+  const sessionPeer = getSessionPeer(sessionId);
+  const cfg = applySessionPeer(loadConfig(), sessionId);
   const host = getDetectedHost();
   const cfgPath = getConfigPath();
   const cfgExists = configExists();
@@ -125,6 +130,7 @@ function handleGetConfig(cwd: string) {
     enabled: cfg.enabled !== false,
     logging: cfg.logging !== false,
     saveMessages: cfg.saveMessages !== false,
+    sessionPeer: sessionPeer ? { aiPeer: sessionPeer.aiPeer, peerName: sessionPeer.peerName } : null,
   } : null;
 
   // Current status header values
@@ -279,6 +285,108 @@ function validateComponentArray(
   const bad = arr.filter((v) => !allowed.includes(v));
   if (bad.length) return err(`${field} entries must be one of: ${allowed.join(", ")} (got: ${bad.join(", ")})`);
   return arr;
+}
+
+const PEER_ID_RE = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,99}$/;
+
+/**
+ * Switch the peer(s) this Claude Code session saves under, for this session
+ * only. Writes ~/.honcho/peer-<session_id>.json, which every hook and MCP call
+ * applies on top of env/config (see applySessionPeer). Nothing is written to
+ * the config file, so other sessions are untouched. Messages already saved
+ * keep their peer: Honcho exposes no re-attribution endpoint, so a rewrite
+ * would mean deleting the session and re-deriving it from scratch.
+ */
+async function handleSetSessionPeer(
+  args: Record<string, unknown>,
+  cwd: string,
+  honcho: Honcho,
+  baseConfig: NonNullable<ReturnType<typeof loadConfig>>,
+) {
+  const fail = (error: string) => ({
+    content: [{ type: "text", text: JSON.stringify({ success: false, error }, null, 2) }],
+    isError: true,
+  });
+  const sessionId = getInstanceIdForCwd(cwd);
+  if (!sessionId) {
+    return fail(`No active Claude Code session recorded for ${cwd}. The session-start hook writes it; is the plugin enabled here?`);
+  }
+  const previous = getSessionPeer(sessionId);
+  const sessionName = getSessionName(cwd, sessionId);
+
+  if (args.clear === true) {
+    clearSessionPeer(sessionId);
+    clearPeerCache();
+    clearClaudeContextOnly();
+    const resolved = loadConfig();
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify({
+          success: true,
+          cleared: previous,
+          sessionId,
+          session: sessionName,
+          aiPeer: resolved?.aiPeer,
+          peerName: resolved?.peerName,
+          note: "Override removed; env/config peers apply from the next message on.",
+        }, null, 2),
+      }],
+    };
+  }
+
+  const patch: { aiPeer?: string; peerName?: string } = {};
+  for (const key of ["aiPeer", "peerName"] as const) {
+    const v = args[key];
+    if (v === undefined || v === null || v === "") continue;
+    if (typeof v !== "string" || !PEER_ID_RE.test(v)) {
+      return fail(`${key} must match ${PEER_ID_RE} (got ${JSON.stringify(v)})`);
+    }
+    patch[key] = v;
+  }
+  if (!patch.aiPeer && !patch.peerName) {
+    return fail("Pass aiPeer and/or peerName, or clear=true.");
+  }
+
+  const override = setSessionPeer(sessionId, patch);
+  clearPeerCache();
+  clearClaudeContextOnly();
+  const resolved = applySessionPeer({ ...baseConfig }, sessionId);
+
+  // Make the new peer a member of this session so its messages derive the way
+  // session-start would have set them up. Server-side peer defaults
+  // (observe_me) are left alone, same as session-start.
+  const warnings: string[] = [];
+  try {
+    const session = await honcho.session(sessionName);
+    const observationMode = getObservationMode(resolved);
+    const members: Parameters<typeof session.addPeers>[0] = [];
+    if (patch.peerName) members.push(await honcho.peer(patch.peerName));
+    if (patch.aiPeer) {
+      const ai = await honcho.peer(patch.aiPeer);
+      members.push(observationMode === "directional" ? [ai, { observeOthers: true }] : ai);
+    }
+    await session.addPeers(members);
+  } catch (e) {
+    warnings.push(`Override saved, but adding the peer to session ${sessionName} failed: ${e instanceof Error ? e.message : String(e)}. The next hook call retries membership implicitly.`);
+  }
+
+  return {
+    content: [{
+      type: "text",
+      text: JSON.stringify({
+        success: true,
+        sessionId,
+        session: sessionName,
+        previous: previous ?? { aiPeer: baseConfig.aiPeer, peerName: baseConfig.peerName },
+        aiPeer: resolved.aiPeer,
+        peerName: resolved.peerName,
+        setAt: new Date(override.setAt).toISOString(),
+        note: "Applies to this session only, from the next message on. Messages already saved keep their original peer. The override is removed when the session ends; relaunch with HONCHO_AI_PEER to make it permanent.",
+        warnings,
+      }, null, 2),
+    }],
+  };
 }
 
 function handleSetConfig(args: Record<string, unknown>) {
@@ -765,11 +873,14 @@ const REMEMBER_TOOL = {
 
 export async function runMcpServer(): Promise<void> {
   setDetectedHost("claude_code");
-  const config = loadConfig();
-  if (!config) {
+  const baseConfig = loadConfig();
+  if (!baseConfig) {
     console.error("[honcho-mcp] Not configured. Run: honcho init");
     process.exit(1);
   }
+  // Peers are resolved per call so a mid-session `set_session_peer` is seen
+  // without restarting the server; everything else is fixed at startup.
+  const config = baseConfig;
 
   const server = new Server(
     {
@@ -956,6 +1067,18 @@ export async function runMcpServer(): Promise<void> {
           },
         },
         {
+          name: "set_session_peer",
+          description: "Switch the Honcho AI peer (and optionally the user peer) for the current Claude Code session only. Takes effect from the next message; already-saved messages keep their peer. Does not touch the config file. clear=true removes the override.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              aiPeer: { type: "string", description: "Peer name the assistant's messages are saved under for this session (e.g. honcho-lead)" },
+              peerName: { type: "string", description: "Peer name the user's prompts are saved under for this session (rarely needed)" },
+              clear: { type: "boolean", description: "Remove the session override and go back to env/config peers" },
+            },
+          },
+        },
+        {
           name: "set_config",
           description: "Update a Honcho plugin configuration field. Dangerous changes (workspace, endpoint) require confirm=true.",
           inputSchema: {
@@ -1019,11 +1142,16 @@ export async function runMcpServer(): Promise<void> {
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
     const cwd = getLastActiveCwd() || process.cwd();
+    const config = applySessionPeer({ ...baseConfig }, getInstanceIdForCwd(cwd));
 
     // ── Config tools (no Honcho session needed) ──
 
     if (name === "get_config") {
       return handleGetConfig(cwd);
+    }
+
+    if (name === "set_session_peer") {
+      return handleSetSessionPeer((args ?? {}) as Record<string, unknown>, cwd, honcho, baseConfig);
     }
 
     if (name === "set_config") {

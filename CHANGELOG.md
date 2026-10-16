@@ -12,8 +12,13 @@ All notable changes to claude-honcho will be documented in this file.
 
 - The plugin is distributed as the npm package `@honcho-ai/claude-honcho` and the marketplace installs from it. Releases ship a self-contained bundle that runs under Node, so Bun is no longer a prerequisite for using the plugin — it remains the development toolchain.
 
+### Added (unreleased)
+
+- `set_session_peer` MCP tool and `/honcho:peer` skill: switch the AI peer (or the user peer) for the current Claude Code session only, without a relaunch and without writing the config file. Hooks and the MCP server apply the override from the next message on; earlier messages keep their peer.
+
 ### Fixed
 
+- `HONCHO_SAVE_MESSAGES` now overrides the config file like `HONCHO_AI_PEER` does, so a session can be launched read-only (recall on, uploads off) while the file keeps saving on.
 - `HONCHO_AI_PEER` now overrides the AI peer when `~/.honcho/config.json` exists, matching `HONCHO_PEER_NAME` and the README. It was only read when no config file existed, so a session could not be launched under a different AI peer.
 - Stop hook no longer drops the turn's final reply when it fires before Claude Code has flushed the assistant entry to the transcript. The payload's `last_assistant_message` fills in.
 - Prompts that arrive behind a harness `<system-reminder>` block (the desktop app's worktree notice, background-task status) are no longer treated as harness-injected. The hooks strip the leading reminders, then save the prompt, run recall on it, and use it as the Stop hook's turn boundary.

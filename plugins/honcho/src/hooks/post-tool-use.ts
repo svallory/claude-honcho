@@ -1,12 +1,13 @@
 import { Honcho } from "@honcho-ai/sdk";
-import { initHook, loadConfig, getSessionForPath, getSessionName, getHonchoClientOptions, isPluginEnabled, getCachedStdin, readStdinText } from "../config.js";
-import { getClaudeInstanceId } from "../cache.js";
+import { initHook, loadConfig, applySessionPeer, getSessionForPath, getSessionName, getHonchoClientOptions, isPluginEnabled, getCachedStdin, readStdinText } from "../config.js";
+import { getClaudeInstanceId, getInstanceIdForCwd } from "../cache.js";
 import { logHook, logApiCall, setLogContext } from "../log.js";
 import { redactSecrets } from "../redact.js";
 import { visCapture } from "../visual.js";
 
 
 interface HookInput {
+  session_id?: string;
   tool_name?: string;
   tool_input?: Record<string, any>;
   tool_response?: Record<string, any>;
@@ -211,6 +212,7 @@ export async function handlePostToolUse(): Promise<void> {
   const toolInput = hookInput.tool_input || {};
   const toolResponse = hookInput.tool_response || {};
   const cwd = hookInput.workspace_roots?.[0] || hookInput.cwd || process.cwd();
+  applySessionPeer(config, hookInput.session_id || getInstanceIdForCwd(cwd));
 
   // Set log context
   setLogContext(cwd, getSessionName(cwd));
