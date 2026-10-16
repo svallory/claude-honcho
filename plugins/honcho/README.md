@@ -142,6 +142,7 @@ The honcho plugin provides these tools via MCP:
 | `get_representation` | Retrieve the user's representation string                      |
 | `get_config`         | View current configuration and status                          |
 | `set_config`         | Change any configuration field programmatically                |
+| `set_session_peer`   | Switch the AI (or user) peer for the current session only; applies from the next message |
 | `honcho_remember`    | Fan-out dialectic recall (only registered when `rememberTool: true`) |
 
 ## Skills
@@ -150,6 +151,7 @@ The honcho plugin provides these tools via MCP:
 | ------------------- | ----------------------------------------------------------- |
 | `/honcho:status`    | Show current memory status and connection info              |
 | `/honcho:config`    | Interactive configuration menu                              |
+| `/honcho:peer`      | Switch the AI peer for this session only (`/honcho:peer <name>`, `--clear`) |
 | `/honcho:setup`     | First-time setup — validate API key and create config       |
 | `/honcho:interview` | Interview to capture stable, cross-project user preferences |
 | `/honcho:briefing`  | Load the session briefing via a visible tool call            |
@@ -468,7 +470,7 @@ Environment variables work for initial bootstrap (before a config file exists). 
 | `HONCHO_HOST`          | No       | auto-detected | Force host detection: `claude_code`, `cursor`, or `obsidian`      |
 | `HONCHO_ENDPOINT`      | No       | `production`  | `production`, `local`, or a full URL                              |
 | `HONCHO_ENABLED`       | No       | `true`        | Set to `false` to disable                                         |
-| `HONCHO_SAVE_MESSAGES` | No       | `true`        | Set to `false` to stop saving messages                            |
+| `HONCHO_SAVE_MESSAGES` | No       | `true`        | Set to `false` to stop saving messages (recall stays on); overrides the config file |
 | `HONCHO_LOGGING`       | No       | `true`        | Set to `false` to disable file logging to `~/.honcho/`            |
 
 ## How It Works

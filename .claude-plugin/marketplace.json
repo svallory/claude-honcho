@@ -2,15 +2,15 @@
   "name": "honcho",
   "owner": { "name": "Saulo Vallory (fork of Plastic Labs claude-honcho)" },
   "metadata": {
-    "description": "Fork of plastic-labs/claude-honcho with HONCHO_AI_PEER override (PR #157) until it lands upstream",
-    "version": "0.3.4-svallory.1"
+    "description": "Fork of plastic-labs/claude-honcho with HONCHO_AI_PEER + HONCHO_SAVE_MESSAGES env fixes and the per-session peer switch (set_session_peer, /honcho:peer)",
+    "version": "0.3.4-svallory.2"
   },
   "plugins": [
     {
       "name": "honcho",
       "source": "./plugins/honcho",
-      "description": "Persistent memory for Claude Code sessions using Honcho (fork build, main + PR #157)",
-      "version": "0.3.4-svallory.1",
+      "description": "Persistent memory for Claude Code sessions using Honcho (fork build: main + PR #157 + feat/session-peer)",
+      "version": "0.3.4-svallory.2",
       "keywords": ["memory", "context", "persistence"],
       "strict": false
     }

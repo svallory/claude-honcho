@@ -1,54 +1,10 @@
 #!/usr/bin/env bun
-var __create = Object.create;
-var __getProtoOf = Object.getPrototypeOf;
-var __defProp = Object.defineProperty;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-function __accessProp(key) {
-  return this[key];
-}
-var __toESMCache_node;
-var __toESMCache_esm;
-var __toESM = (mod, isNodeMode, target) => {
-  var canCache = mod != null && typeof mod === "object";
-  if (canCache) {
-    var cache = isNodeMode ? __toESMCache_node ??= new WeakMap : __toESMCache_esm ??= new WeakMap;
-    var cached = cache.get(mod);
-    if (cached)
-      return cached;
-  }
-  target = mod != null ? __create(__getProtoOf(mod)) : {};
-  const to = isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target;
-  for (let key of __getOwnPropNames(mod))
-    if (!__hasOwnProp.call(to, key))
-      __defProp(to, key, {
-        get: __accessProp.bind(mod, key),
-        enumerable: true
-      });
-  if (canCache)
-    cache.set(mod, to);
-  return to;
-};
-var __commonJS = (cb, mod) => () => (mod || cb((mod = { exports: {} }).exports, mod), mod.exports);
-var __returnValue = (v) => v;
-function __exportSetter(name, newValue) {
-  this[name] = __returnValue.bind(null, newValue);
-}
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, {
-      get: all[name],
-      enumerable: true,
-      configurable: true,
-      set: __exportSetter.bind(all, name)
-    });
-};
 
 // src/config.ts
-import { homedir as homedir2 } from "os";
-import { join as join3, basename, dirname, resolve, sep } from "path";
+import { homedir as homedir3 } from "os";
+import { join as join4, basename, dirname, resolve, sep } from "path";
 import { fileURLToPath } from "url";
-import { existsSync as existsSync3, mkdirSync as mkdirSync2, readFileSync as readFileSync2, statSync, writeFileSync as writeFileSync2 } from "fs";
+import { existsSync as existsSync3, mkdirSync as mkdirSync2, readFileSync as readFileSync3, statSync, writeFileSync as writeFileSync3 } from "fs";
 
 // src/git.ts
 import { execSync } from "child_process";
@@ -312,6 +268,67 @@ function clearClaudeContextOnly() {
   delete cache.claudeContext;
   saveContextCache(cache);
 }
+
+// src/state.ts
+import { homedir as homedir2 } from "os";
+import { join as join3 } from "path";
+import { writeFileSync as writeFileSync2, unlinkSync, readFileSync as readFileSync2 } from "fs";
+var DIR = join3(homedir2(), ".honcho");
+function stateFile(sessionId) {
+  return join3(DIR, sessionId ? `state-${sessionId}.json` : "state.json");
+}
+function sessionFile(sessionId) {
+  return join3(DIR, sessionId ? `session-${sessionId}.json` : "session.json");
+}
+function peerFile(sessionId) {
+  return join3(DIR, `peer-${sessionId}.json`);
+}
+function getSessionPeer(sessionId) {
+  if (!sessionId)
+    return null;
+  try {
+    const raw = JSON.parse(readFileSync2(peerFile(sessionId), "utf-8"));
+    if (!raw || typeof raw !== "object")
+      return null;
+    const out = { setAt: Number(raw.setAt) || 0 };
+    if (typeof raw.aiPeer === "string" && raw.aiPeer)
+      out.aiPeer = raw.aiPeer;
+    if (typeof raw.peerName === "string" && raw.peerName)
+      out.peerName = raw.peerName;
+    return out.aiPeer || out.peerName ? out : null;
+  } catch {
+    return null;
+  }
+}
+function setSessionPeer(sessionId, patch) {
+  const merged = { ...getSessionPeer(sessionId) ?? {}, ...patch, setAt: Date.now() };
+  writeFileSync2(peerFile(sessionId), JSON.stringify(merged));
+  return merged;
+}
+function clearSessionPeer(sessionId) {
+  try {
+    unlinkSync(peerFile(sessionId));
+  } catch {}
+}
+function setMemoryState(phase, detail, sessionId) {
+  try {
+    writeFileSync2(stateFile(sessionId), JSON.stringify({ phase, since: Date.now(), detail }));
+  } catch {}
+}
+function setSessionLink(url, name, sessionId) {
+  try {
+    writeFileSync2(sessionFile(sessionId), JSON.stringify({ url, name }));
+  } catch {}
+}
+function clearSessionFiles(sessionId) {
+  if (!sessionId)
+    return;
+  for (const f of [stateFile(sessionId), sessionFile(sessionId), peerFile(sessionId)]) {
+    try {
+      unlinkSync(f);
+    } catch {}
+  }
+}
 // node_modules/@honcho-ai/harness-plugin-core/src/telemetry.ts
 var HEADER_HOST = "X-Honcho-Host";
 var HEADER_PLUGIN = "X-Honcho-Plugin";
@@ -323,7 +340,7 @@ function sanitize(value) {
   return s || undefined;
 }
 function token(name, ver) {
-  const clean = (v2) => sanitize(v2)?.replace(/[\s()/;]+/g, "-");
+  const clean = (v) => sanitize(v)?.replace(/[\s()/;]+/g, "-");
   const n = clean(name);
   const v = clean(ver);
   if (n && v)
@@ -464,8 +481,8 @@ function deepEqual(a, b) {
   }
   return true;
 }
-var CONFIG_DIR = join3(homedir2(), ".honcho");
-var CONFIG_FILE = join3(CONFIG_DIR, "config.json");
+var CONFIG_DIR = join4(homedir3(), ".honcho");
+var CONFIG_FILE = join4(CONFIG_DIR, "config.json");
 function getConfigPath() {
   return CONFIG_FILE;
 }
@@ -475,12 +492,12 @@ function configExists() {
 function getPluginVersion() {
   const root = process.env.CLAUDE_PLUGIN_ROOT;
   const candidates = [
-    ...root ? [join3(root, ".claude-plugin", "plugin.json")] : [],
+    ...root ? [join4(root, ".claude-plugin", "plugin.json")] : [],
     fileURLToPath(new URL("../.claude-plugin/plugin.json", import.meta.url))
   ];
   for (const manifest of candidates) {
     try {
-      const version = JSON.parse(readFileSync2(manifest, "utf-8")).version;
+      const version = JSON.parse(readFileSync3(manifest, "utf-8")).version;
       if (typeof version === "string" && version)
         return version;
     } catch {}
@@ -491,7 +508,7 @@ function loadConfig2(host) {
   const resolvedHost = host ?? getDetectedHost();
   if (configExists()) {
     try {
-      const content = readFileSync2(CONFIG_FILE, "utf-8");
+      const content = readFileSync3(CONFIG_FILE, "utf-8");
       const raw = JSON.parse(content);
       return resolveConfig2(raw, resolvedHost);
     } catch {}
@@ -586,6 +603,9 @@ function mergeWithEnvVars(config) {
   if (process.env.HONCHO_AI_PEER) {
     config.aiPeer = process.env.HONCHO_AI_PEER;
   }
+  if (process.env.HONCHO_SAVE_MESSAGES !== undefined) {
+    config.saveMessages = process.env.HONCHO_SAVE_MESSAGES !== "false";
+  }
   if (process.env.HONCHO_ENABLED === "false") {
     config.enabled = false;
   }
@@ -607,7 +627,7 @@ function saveConfig(config) {
   let existing = {};
   if (existsSync3(CONFIG_FILE)) {
     try {
-      existing = JSON.parse(readFileSync2(CONFIG_FILE, "utf-8"));
+      existing = JSON.parse(readFileSync3(CONFIG_FILE, "utf-8"));
     } catch {}
   }
   if (config.sessions !== undefined) {
@@ -647,7 +667,7 @@ function saveConfig(config) {
     hostEntry.apiKey = existingHost.apiKey;
   }
   existing.hosts[host] = hostEntry;
-  writeFileSync2(CONFIG_FILE, JSON.stringify(existing, null, 2));
+  writeFileSync3(CONFIG_FILE, JSON.stringify(existing, null, 2));
 }
 function saveRootField(field, value) {
   if (!existsSync3(CONFIG_DIR)) {
@@ -656,18 +676,18 @@ function saveRootField(field, value) {
   let existing = {};
   if (existsSync3(CONFIG_FILE)) {
     try {
-      existing = JSON.parse(readFileSync2(CONFIG_FILE, "utf-8"));
+      existing = JSON.parse(readFileSync3(CONFIG_FILE, "utf-8"));
     } catch {}
   }
   existing[field] = value;
-  writeFileSync2(CONFIG_FILE, JSON.stringify(existing, null, 2));
+  writeFileSync3(CONFIG_FILE, JSON.stringify(existing, null, 2));
 }
 function resolveWorktreeMainRoot(dir) {
   try {
-    const gitPath = join3(dir, ".git");
+    const gitPath = join4(dir, ".git");
     if (!statSync(gitPath).isFile())
       return null;
-    const match = readFileSync2(gitPath, "utf-8").match(/^gitdir:\s*(.+?)\s*$/m);
+    const match = readFileSync3(gitPath, "utf-8").match(/^gitdir:\s*(.+?)\s*$/m);
     if (!match)
       return null;
     const gitdir = resolve(dir, match[1]);
@@ -689,7 +709,7 @@ function worktreeMainRootFor(cwd) {
   try {
     let dir = resolve(cwd);
     for (let i = 0;i < MAX_GIT_WALK_UP; i++) {
-      if (existsSync3(join3(dir, ".git")))
+      if (existsSync3(join4(dir, ".git")))
         return resolveWorktreeMainRoot(dir);
       const parent = dirname(dir);
       if (parent === dir)
@@ -789,7 +809,7 @@ function getKnownHosts() {
   if (!existsSync3(cfgPath))
     return [];
   try {
-    const raw = JSON.parse(readFileSync2(cfgPath, "utf-8"));
+    const raw = JSON.parse(readFileSync3(cfgPath, "utf-8"));
     return raw.hosts ? Object.keys(raw.hosts) : [];
   } catch {
     return [];
@@ -838,36 +858,17 @@ var VALID_ENVIRONMENTS = new Set(["production", "local"]);
 function getObservationMode(config) {
   return config.observationMode ?? "unified";
 }
-
-// src/state.ts
-import { homedir as homedir3 } from "os";
-import { join as join4 } from "path";
-import { writeFileSync as writeFileSync3, unlinkSync } from "fs";
-var DIR = join4(homedir3(), ".honcho");
-function stateFile(sessionId) {
-  return join4(DIR, sessionId ? `state-${sessionId}.json` : "state.json");
-}
-function sessionFile(sessionId) {
-  return join4(DIR, sessionId ? `session-${sessionId}.json` : "session.json");
-}
-function setMemoryState(phase, detail, sessionId) {
-  try {
-    writeFileSync3(stateFile(sessionId), JSON.stringify({ phase, since: Date.now(), detail }));
-  } catch {}
-}
-function setSessionLink(url, name, sessionId) {
-  try {
-    writeFileSync3(sessionFile(sessionId), JSON.stringify({ url, name }));
-  } catch {}
-}
-function clearSessionFiles(sessionId) {
-  if (!sessionId)
-    return;
-  for (const f of [stateFile(sessionId), sessionFile(sessionId)]) {
-    try {
-      unlinkSync(f);
-    } catch {}
-  }
+function applySessionPeer(config, sessionId) {
+  if (!config || !sessionId)
+    return config;
+  const override = getSessionPeer(sessionId);
+  if (!override)
+    return config;
+  if (override.aiPeer)
+    config.aiPeer = override.aiPeer;
+  if (override.peerName)
+    config.peerName = override.peerName;
+  return config;
 }
 
 // src/hooks/pre-tool-honcho.ts
@@ -900,5 +901,5 @@ async function main() {
 // hooks/pre-tool-honcho.ts
 await main();
 
-//# debugId=F6176A4BAB21A05C64756E2164756E21
+//# debugId=2982779487FBDAB064756E2164756E21
 //# sourceMappingURL=pre-tool-honcho.js.map

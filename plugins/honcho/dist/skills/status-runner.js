@@ -19,13 +19,15 @@ var __toESM = (mod, isNodeMode, target) => {
       return cached;
   }
   target = mod != null ? __create(__getProtoOf(mod)) : {};
-  const to = isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target;
-  for (let key of __getOwnPropNames(mod))
-    if (!__hasOwnProp.call(to, key))
-      __defProp(to, key, {
-        get: __accessProp.bind(mod, key),
-        enumerable: true
-      });
+  const to = isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default") ? __defProp(target, "default", { value: mod, enumerable: true }) : target;
+  if (mod && typeof mod === "object" || typeof mod === "function") {
+    for (let key of __getOwnPropNames(mod))
+      if (!__hasOwnProp.call(to, key))
+        __defProp(to, key, {
+          get: __accessProp.bind(mod, key),
+          enumerable: true
+        });
+  }
   if (canCache)
     cache.set(mod, to);
   return to;
@@ -33,14 +35,14 @@ var __toESM = (mod, isNodeMode, target) => {
 var __commonJS = (cb, mod) => () => (mod || cb((mod = { exports: {} }).exports, mod), mod.exports);
 
 // node_modules/@honcho-ai/sdk/dist/api-version.js
-var require_api_version = __commonJS((exports) => {
+var require_api_version = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.API_VERSION = undefined;
   exports.API_VERSION = "v3";
 });
 
 // node_modules/@honcho-ai/sdk/dist/http/errors.js
-var require_errors = __commonJS((exports) => {
+var require_errors = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.ConnectionError = exports.TimeoutError = exports.ServerError = exports.RateLimitError = exports.NotFoundError = exports.UnprocessableEntityError = exports.ConflictError = exports.PermissionDeniedError = exports.AuthenticationError = exports.BadRequestError = exports.HonchoError = undefined;
   exports.createErrorFromResponse = createErrorFromResponse;
@@ -162,7 +164,7 @@ var require_errors = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/http/client.js
-var require_client = __commonJS((exports) => {
+var require_client = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.HonchoHTTPClient = undefined;
   var errors_1 = require_errors();
@@ -384,7 +386,7 @@ var require_client = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/message.js
-var require_message = __commonJS((exports) => {
+var require_message = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Message = undefined;
 
@@ -411,7 +413,7 @@ var require_message = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/pagination.js
-var require_pagination = __commonJS((exports) => {
+var require_pagination = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Page = undefined;
 
@@ -491,7 +493,7 @@ var require_pagination = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/core.cjs
-var require_core = __commonJS((exports) => {
+var require_core = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.globalConfig = exports.$ZodAsyncError = exports.$brand = exports.NEVER = undefined;
   exports.$constructor = $constructor;
@@ -559,7 +561,7 @@ var require_core = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/util.cjs
-var require_util = __commonJS((exports) => {
+var require_util = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Class = exports.BIGINT_FORMAT_RANGES = exports.NUMBER_FORMAT_RANGES = exports.primitiveTypes = exports.propertyKeyTypes = exports.getParsedType = exports.allowsEval = exports.captureStackTrace = undefined;
   exports.assertEqual = assertEqual;
@@ -938,7 +940,7 @@ var require_util = __commonJS((exports) => {
       checks: []
     });
   }
-  function partial(Class2, schema, mask) {
+  function partial(Class, schema, mask) {
     const oldShape = schema._zod.def.shape;
     const shape = { ...oldShape };
     if (mask) {
@@ -948,14 +950,14 @@ var require_util = __commonJS((exports) => {
         }
         if (!mask[key])
           continue;
-        shape[key] = Class2 ? new Class2({
+        shape[key] = Class ? new Class({
           type: "optional",
           innerType: oldShape[key]
         }) : oldShape[key];
       }
     } else {
       for (const key in oldShape) {
-        shape[key] = Class2 ? new Class2({
+        shape[key] = Class ? new Class({
           type: "optional",
           innerType: oldShape[key]
         }) : oldShape[key];
@@ -967,7 +969,7 @@ var require_util = __commonJS((exports) => {
       checks: []
     });
   }
-  function required(Class2, schema, mask) {
+  function required(Class, schema, mask) {
     const oldShape = schema._zod.def.shape;
     const shape = { ...oldShape };
     if (mask) {
@@ -977,14 +979,14 @@ var require_util = __commonJS((exports) => {
         }
         if (!mask[key])
           continue;
-        shape[key] = new Class2({
+        shape[key] = new Class({
           type: "nonoptional",
           innerType: oldShape[key]
         });
       }
     } else {
       for (const key in oldShape) {
-        shape[key] = new Class2({
+        shape[key] = new Class({
           type: "nonoptional",
           innerType: oldShape[key]
         });
@@ -1068,7 +1070,7 @@ var require_util = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/errors.cjs
-var require_errors2 = __commonJS((exports) => {
+var require_errors2 = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -1151,8 +1153,8 @@ var require_errors2 = __commonJS((exports) => {
       return issue.message;
     };
     const fieldErrors = { _errors: [] };
-    const processError = (error2) => {
-      for (const issue of error2.issues) {
+    const processError = (error) => {
+      for (const issue of error.issues) {
         if (issue.code === "invalid_union" && issue.errors.length) {
           issue.errors.map((issues) => processError({ issues }));
         } else if (issue.code === "invalid_key") {
@@ -1187,9 +1189,9 @@ var require_errors2 = __commonJS((exports) => {
       return issue.message;
     };
     const result = { errors: [] };
-    const processError = (error2, path = []) => {
+    const processError = (error, path = []) => {
       var _a, _b;
-      for (const issue of error2.issues) {
+      for (const issue of error.issues) {
         if (issue.code === "invalid_union" && issue.errors.length) {
           issue.errors.map((issues) => processError({ issues }, issue.path));
         } else if (issue.code === "invalid_key") {
@@ -1258,7 +1260,7 @@ var require_errors2 = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/parse.cjs
-var require_parse = __commonJS((exports) => {
+var require_parse = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -1353,7 +1355,7 @@ var require_parse = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/regexes.cjs
-var require_regexes = __commonJS((exports) => {
+var require_regexes = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.uppercase = exports.lowercase = exports.undefined = exports.null = exports.boolean = exports.number = exports.integer = exports.bigint = exports.string = exports.date = exports.e164 = exports.domain = exports.hostname = exports.base64url = exports.base64 = exports.cidrv6 = exports.cidrv4 = exports.ipv6 = exports.ipv4 = exports.browserEmail = exports.unicodeEmail = exports.rfc5322Email = exports.html5Email = exports.email = exports.uuid7 = exports.uuid6 = exports.uuid4 = exports.uuid = exports.guid = exports.extendedDuration = exports.duration = exports.nanoid = exports.ksuid = exports.xid = exports.ulid = exports.cuid2 = exports.cuid = undefined;
   exports.emoji = emoji;
@@ -1406,13 +1408,13 @@ var require_regexes = __commonJS((exports) => {
     return new RegExp(`^${timeSource(args)}$`);
   }
   function datetime(args) {
-    const time2 = timeSource({ precision: args.precision });
+    const time = timeSource({ precision: args.precision });
     const opts = ["Z"];
     if (args.local)
       opts.push("");
     if (args.offset)
       opts.push(`([+-]\\d{2}:\\d{2})`);
-    const timeRegex = `${time2}(?:${opts.join("|")})`;
+    const timeRegex = `${time}(?:${opts.join("|")})`;
     return new RegExp(`^${dateSource}T(?:${timeRegex})$`);
   }
   var string = (params) => {
@@ -1433,7 +1435,7 @@ var require_regexes = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/checks.cjs
-var require_checks = __commonJS((exports) => {
+var require_checks = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -1485,8 +1487,8 @@ var require_checks = __commonJS((exports) => {
   exports.$ZodCheckLessThan = core.$constructor("$ZodCheckLessThan", (inst, def) => {
     exports.$ZodCheck.init(inst, def);
     const origin = numericOriginMap[typeof def.value];
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       const curr = (def.inclusive ? bag.maximum : bag.exclusiveMaximum) ?? Number.POSITIVE_INFINITY;
       if (def.value < curr) {
         if (def.inclusive)
@@ -1513,8 +1515,8 @@ var require_checks = __commonJS((exports) => {
   exports.$ZodCheckGreaterThan = core.$constructor("$ZodCheckGreaterThan", (inst, def) => {
     exports.$ZodCheck.init(inst, def);
     const origin = numericOriginMap[typeof def.value];
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       const curr = (def.inclusive ? bag.minimum : bag.exclusiveMinimum) ?? Number.NEGATIVE_INFINITY;
       if (def.value > curr) {
         if (def.inclusive)
@@ -1540,9 +1542,9 @@ var require_checks = __commonJS((exports) => {
   });
   exports.$ZodCheckMultipleOf = /* @__PURE__ */ core.$constructor("$ZodCheckMultipleOf", (inst, def) => {
     exports.$ZodCheck.init(inst, def);
-    inst._zod.onattach.push((inst2) => {
+    inst._zod.onattach.push((inst) => {
       var _a;
-      (_a = inst2._zod.bag).multipleOf ?? (_a.multipleOf = def.value);
+      (_a = inst._zod.bag).multipleOf ?? (_a.multipleOf = def.value);
     });
     inst._zod.check = (payload) => {
       if (typeof payload.value !== typeof def.value)
@@ -1566,8 +1568,8 @@ var require_checks = __commonJS((exports) => {
     const isInt = def.format?.includes("int");
     const origin = isInt ? "int" : "number";
     const [minimum, maximum] = util.NUMBER_FORMAT_RANGES[def.format];
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       bag.format = def.format;
       bag.minimum = minimum;
       bag.maximum = maximum;
@@ -1637,8 +1639,8 @@ var require_checks = __commonJS((exports) => {
   exports.$ZodCheckBigIntFormat = core.$constructor("$ZodCheckBigIntFormat", (inst, def) => {
     exports.$ZodCheck.init(inst, def);
     const [minimum, maximum] = util.BIGINT_FORMAT_RANGES[def.format];
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       bag.format = def.format;
       bag.minimum = minimum;
       bag.maximum = maximum;
@@ -1674,10 +1676,10 @@ var require_checks = __commonJS((exports) => {
       const val = payload.value;
       return !util.nullish(val) && val.size !== undefined;
     });
-    inst._zod.onattach.push((inst2) => {
-      const curr = inst2._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
+    inst._zod.onattach.push((inst) => {
+      const curr = inst._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
       if (def.maximum < curr)
-        inst2._zod.bag.maximum = def.maximum;
+        inst._zod.bag.maximum = def.maximum;
     });
     inst._zod.check = (payload) => {
       const input = payload.value;
@@ -1701,10 +1703,10 @@ var require_checks = __commonJS((exports) => {
       const val = payload.value;
       return !util.nullish(val) && val.size !== undefined;
     });
-    inst._zod.onattach.push((inst2) => {
-      const curr = inst2._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
+    inst._zod.onattach.push((inst) => {
+      const curr = inst._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
       if (def.minimum > curr)
-        inst2._zod.bag.minimum = def.minimum;
+        inst._zod.bag.minimum = def.minimum;
     });
     inst._zod.check = (payload) => {
       const input = payload.value;
@@ -1728,8 +1730,8 @@ var require_checks = __commonJS((exports) => {
       const val = payload.value;
       return !util.nullish(val) && val.size !== undefined;
     });
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       bag.minimum = def.size;
       bag.maximum = def.size;
       bag.size = def.size;
@@ -1758,10 +1760,10 @@ var require_checks = __commonJS((exports) => {
       const val = payload.value;
       return !util.nullish(val) && val.length !== undefined;
     });
-    inst._zod.onattach.push((inst2) => {
-      const curr = inst2._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
+    inst._zod.onattach.push((inst) => {
+      const curr = inst._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
       if (def.maximum < curr)
-        inst2._zod.bag.maximum = def.maximum;
+        inst._zod.bag.maximum = def.maximum;
     });
     inst._zod.check = (payload) => {
       const input = payload.value;
@@ -1787,10 +1789,10 @@ var require_checks = __commonJS((exports) => {
       const val = payload.value;
       return !util.nullish(val) && val.length !== undefined;
     });
-    inst._zod.onattach.push((inst2) => {
-      const curr = inst2._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
+    inst._zod.onattach.push((inst) => {
+      const curr = inst._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
       if (def.minimum > curr)
-        inst2._zod.bag.minimum = def.minimum;
+        inst._zod.bag.minimum = def.minimum;
     });
     inst._zod.check = (payload) => {
       const input = payload.value;
@@ -1816,8 +1818,8 @@ var require_checks = __commonJS((exports) => {
       const val = payload.value;
       return !util.nullish(val) && val.length !== undefined;
     });
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       bag.minimum = def.length;
       bag.maximum = def.length;
       bag.length = def.length;
@@ -1843,8 +1845,8 @@ var require_checks = __commonJS((exports) => {
   exports.$ZodCheckStringFormat = core.$constructor("$ZodCheckStringFormat", (inst, def) => {
     var _a, _b;
     exports.$ZodCheck.init(inst, def);
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       bag.format = def.format;
       if (def.pattern) {
         bag.patterns ?? (bag.patterns = new Set);
@@ -1899,8 +1901,8 @@ var require_checks = __commonJS((exports) => {
     const escapedRegex = util.escapeRegex(def.includes);
     const pattern = new RegExp(typeof def.position === "number" ? `^.{${def.position}}${escapedRegex}` : escapedRegex);
     def.pattern = pattern;
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       bag.patterns ?? (bag.patterns = new Set);
       bag.patterns.add(pattern);
     });
@@ -1922,8 +1924,8 @@ var require_checks = __commonJS((exports) => {
     exports.$ZodCheck.init(inst, def);
     const pattern = new RegExp(`^${util.escapeRegex(def.prefix)}.*`);
     def.pattern ?? (def.pattern = pattern);
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       bag.patterns ?? (bag.patterns = new Set);
       bag.patterns.add(pattern);
     });
@@ -1945,8 +1947,8 @@ var require_checks = __commonJS((exports) => {
     exports.$ZodCheck.init(inst, def);
     const pattern = new RegExp(`.*${util.escapeRegex(def.suffix)}$`);
     def.pattern ?? (def.pattern = pattern);
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       bag.patterns ?? (bag.patterns = new Set);
       bag.patterns.add(pattern);
     });
@@ -1977,7 +1979,7 @@ var require_checks = __commonJS((exports) => {
         issues: []
       }, {});
       if (result instanceof Promise) {
-        return result.then((result2) => handleCheckPropertyResult(result2, payload, def.property));
+        return result.then((result) => handleCheckPropertyResult(result, payload, def.property));
       }
       handleCheckPropertyResult(result, payload, def.property);
       return;
@@ -1986,8 +1988,8 @@ var require_checks = __commonJS((exports) => {
   exports.$ZodCheckMimeType = core.$constructor("$ZodCheckMimeType", (inst, def) => {
     exports.$ZodCheck.init(inst, def);
     const mimeSet = new Set(def.mime);
-    inst._zod.onattach.push((inst2) => {
-      inst2._zod.bag.mime = def.mime;
+    inst._zod.onattach.push((inst) => {
+      inst._zod.bag.mime = def.mime;
     });
     inst._zod.check = (payload) => {
       if (mimeSet.has(payload.value.type))
@@ -2009,7 +2011,7 @@ var require_checks = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/doc.cjs
-var require_doc = __commonJS((exports) => {
+var require_doc = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Doc = undefined;
 
@@ -2053,7 +2055,7 @@ var require_doc = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/versions.cjs
-var require_versions = __commonJS((exports) => {
+var require_versions = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.version = undefined;
   exports.version = {
@@ -2064,7 +2066,7 @@ var require_versions = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/schemas.cjs
-var require_schemas = __commonJS((exports) => {
+var require_schemas = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -2116,25 +2118,25 @@ var require_schemas = __commonJS((exports) => {
     inst._zod.def = def;
     inst._zod.bag = inst._zod.bag || {};
     inst._zod.version = versions_js_1.version;
-    const checks2 = [...inst._zod.def.checks ?? []];
+    const checks = [...inst._zod.def.checks ?? []];
     if (inst._zod.traits.has("$ZodCheck")) {
-      checks2.unshift(inst);
+      checks.unshift(inst);
     }
-    for (const ch of checks2) {
+    for (const ch of checks) {
       for (const fn of ch._zod.onattach) {
         fn(inst);
       }
     }
-    if (checks2.length === 0) {
+    if (checks.length === 0) {
       (_a = inst._zod).deferred ?? (_a.deferred = []);
       inst._zod.deferred?.push(() => {
         inst._zod.run = inst._zod.parse;
       });
     } else {
-      const runChecks = (payload, checks3, ctx) => {
+      const runChecks = (payload, checks, ctx) => {
         let isAborted = util.aborted(payload);
         let asyncResult;
-        for (const ch of checks3) {
+        for (const ch of checks) {
           if (ch._zod.def.when) {
             const shouldRun = ch._zod.def.when(payload);
             if (!shouldRun)
@@ -2176,9 +2178,9 @@ var require_schemas = __commonJS((exports) => {
         if (result instanceof Promise) {
           if (ctx.async === false)
             throw new core.$ZodAsyncError;
-          return result.then((result2) => runChecks(result2, checks2, ctx));
+          return result.then((result) => runChecks(result, checks, ctx));
         }
-        return runChecks(result, checks2, ctx);
+        return runChecks(result, checks, ctx);
       };
     }
     inst["~standard"] = {
@@ -2205,7 +2207,7 @@ var require_schemas = __commonJS((exports) => {
       if (def.coerce)
         try {
           payload.value = String(payload.value);
-        } catch (_2) {}
+        } catch (_) {}
       if (typeof payload.value === "string")
         return payload;
       payload.issues.push({
@@ -2348,16 +2350,16 @@ var require_schemas = __commonJS((exports) => {
   exports.$ZodIPv4 = core.$constructor("$ZodIPv4", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.ipv4);
     exports.$ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       bag.format = `ipv4`;
     });
   });
   exports.$ZodIPv6 = core.$constructor("$ZodIPv6", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.ipv6);
     exports.$ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst2) => {
-      const bag = inst2._zod.bag;
+    inst._zod.onattach.push((inst) => {
+      const bag = inst._zod.bag;
       bag.format = `ipv6`;
     });
     inst._zod.check = (payload) => {
@@ -2418,8 +2420,8 @@ var require_schemas = __commonJS((exports) => {
   exports.$ZodBase64 = core.$constructor("$ZodBase64", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.base64);
     exports.$ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst2) => {
-      inst2._zod.bag.contentEncoding = "base64";
+    inst._zod.onattach.push((inst) => {
+      inst._zod.bag.contentEncoding = "base64";
     });
     inst._zod.check = (payload) => {
       if (isValidBase64(payload.value))
@@ -2443,8 +2445,8 @@ var require_schemas = __commonJS((exports) => {
   exports.$ZodBase64URL = core.$constructor("$ZodBase64URL", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.base64url);
     exports.$ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst2) => {
-      inst2._zod.bag.contentEncoding = "base64url";
+    inst._zod.onattach.push((inst) => {
+      inst._zod.bag.contentEncoding = "base64url";
     });
     inst._zod.check = (payload) => {
       if (isValidBase64URL(payload.value))
@@ -2717,7 +2719,7 @@ var require_schemas = __commonJS((exports) => {
           issues: []
         }, ctx);
         if (result instanceof Promise) {
-          proms.push(result.then((result2) => handleArrayResult(result2, payload, i)));
+          proms.push(result.then((result) => handleArrayResult(result, payload, i)));
         } else {
           handleArrayResult(result, payload, i);
         }
@@ -2870,7 +2872,7 @@ var require_schemas = __commonJS((exports) => {
           const r = el._zod.run({ value: input[key], issues: [] }, ctx);
           const isOptional = el._zod.optin === "optional" && el._zod.optout === "optional";
           if (r instanceof Promise) {
-            proms.push(r.then((r2) => isOptional ? handleOptionalObjectResult(r2, payload, key, input) : handleObjectResult(r2, payload, key)));
+            proms.push(r.then((r) => isOptional ? handleOptionalObjectResult(r, payload, key, input) : handleObjectResult(r, payload, key)));
           } else if (isOptional) {
             handleOptionalObjectResult(r, payload, key, input);
           } else {
@@ -2894,7 +2896,7 @@ var require_schemas = __commonJS((exports) => {
         }
         const r = _catchall.run({ value: input[key], issues: [] }, ctx);
         if (r instanceof Promise) {
-          proms.push(r.then((r2) => handleObjectResult(r2, payload, key)));
+          proms.push(r.then((r) => handleObjectResult(r, payload, key)));
         } else {
           handleObjectResult(r, payload, key);
         }
@@ -2965,8 +2967,8 @@ var require_schemas = __commonJS((exports) => {
       }
       if (!async)
         return handleUnionResults(results, payload, inst, ctx);
-      return Promise.all(results).then((results2) => {
-        return handleUnionResults(results2, payload, inst, ctx);
+      return Promise.all(results).then((results) => {
+        return handleUnionResults(results, payload, inst, ctx);
       });
     };
   });
@@ -3042,8 +3044,8 @@ var require_schemas = __commonJS((exports) => {
       const right = def.right._zod.run({ value: input, issues: [] }, ctx);
       const async = left instanceof Promise || right instanceof Promise;
       if (async) {
-        return Promise.all([left, right]).then(([left2, right2]) => {
-          return handleIntersectionResults(payload, left2, right2);
+        return Promise.all([left, right]).then(([left, right]) => {
+          return handleIntersectionResults(payload, left, right);
         });
       }
       return handleIntersectionResults(payload, left, right);
@@ -3151,7 +3153,7 @@ var require_schemas = __commonJS((exports) => {
           issues: []
         }, ctx);
         if (result instanceof Promise) {
-          proms.push(result.then((result2) => handleTupleResult(result2, payload, i)));
+          proms.push(result.then((result) => handleTupleResult(result, payload, i)));
         } else {
           handleTupleResult(result, payload, i);
         }
@@ -3165,7 +3167,7 @@ var require_schemas = __commonJS((exports) => {
             issues: []
           }, ctx);
           if (result instanceof Promise) {
-            proms.push(result.then((result2) => handleTupleResult(result2, payload, i)));
+            proms.push(result.then((result) => handleTupleResult(result, payload, i)));
           } else {
             handleTupleResult(result, payload, i);
           }
@@ -3203,11 +3205,11 @@ var require_schemas = __commonJS((exports) => {
           if (typeof key === "string" || typeof key === "number" || typeof key === "symbol") {
             const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
             if (result instanceof Promise) {
-              proms.push(result.then((result2) => {
-                if (result2.issues.length) {
-                  payload.issues.push(...util.prefixIssues(key, result2.issues));
+              proms.push(result.then((result) => {
+                if (result.issues.length) {
+                  payload.issues.push(...util.prefixIssues(key, result.issues));
                 }
-                payload.value[key] = result2.value;
+                payload.value[key] = result.value;
               }));
             } else {
               if (result.issues.length) {
@@ -3255,11 +3257,11 @@ var require_schemas = __commonJS((exports) => {
           }
           const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
           if (result instanceof Promise) {
-            proms.push(result.then((result2) => {
-              if (result2.issues.length) {
-                payload.issues.push(...util.prefixIssues(key, result2.issues));
+            proms.push(result.then((result) => {
+              if (result.issues.length) {
+                payload.issues.push(...util.prefixIssues(key, result.issues));
               }
-              payload.value[keyResult.value] = result2.value;
+              payload.value[keyResult.value] = result.value;
             }));
           } else {
             if (result.issues.length) {
@@ -3294,8 +3296,8 @@ var require_schemas = __commonJS((exports) => {
         const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
         const valueResult = def.valueType._zod.run({ value, issues: [] }, ctx);
         if (keyResult instanceof Promise || valueResult instanceof Promise) {
-          proms.push(Promise.all([keyResult, valueResult]).then(([keyResult2, valueResult2]) => {
-            handleMapResult(keyResult2, valueResult2, payload, key, input, inst, ctx);
+          proms.push(Promise.all([keyResult, valueResult]).then(([keyResult, valueResult]) => {
+            handleMapResult(keyResult, valueResult, payload, key, input, inst, ctx);
           }));
         } else {
           handleMapResult(keyResult, valueResult, payload, key, input, inst, ctx);
@@ -3354,7 +3356,7 @@ var require_schemas = __commonJS((exports) => {
       for (const item of input) {
         const result = def.valueType._zod.run({ value: item, issues: [] }, ctx);
         if (result instanceof Promise) {
-          proms.push(result.then((result2) => handleSetResult(result2, payload)));
+          proms.push(result.then((result) => handleSetResult(result, payload)));
         } else
           handleSetResult(result, payload);
       }
@@ -3427,8 +3429,8 @@ var require_schemas = __commonJS((exports) => {
       const _out = def.transform(payload.value, payload);
       if (_ctx.async) {
         const output = _out instanceof Promise ? _out : Promise.resolve(_out);
-        return output.then((output2) => {
-          payload.value = output2;
+        return output.then((output) => {
+          payload.value = output;
           return payload;
         });
       }
@@ -3488,7 +3490,7 @@ var require_schemas = __commonJS((exports) => {
       }
       const result = def.innerType._zod.run(payload, ctx);
       if (result instanceof Promise) {
-        return result.then((result2) => handleDefaultResult(result2, def));
+        return result.then((result) => handleDefaultResult(result, def));
       }
       return handleDefaultResult(result, def);
     };
@@ -3519,7 +3521,7 @@ var require_schemas = __commonJS((exports) => {
     inst._zod.parse = (payload, ctx) => {
       const result = def.innerType._zod.run(payload, ctx);
       if (result instanceof Promise) {
-        return result.then((result2) => handleNonOptionalResult(result2, inst));
+        return result.then((result) => handleNonOptionalResult(result, inst));
       }
       return handleNonOptionalResult(result, inst);
     };
@@ -3540,8 +3542,8 @@ var require_schemas = __commonJS((exports) => {
     inst._zod.parse = (payload, ctx) => {
       const result = def.innerType._zod.run(payload, ctx);
       if (result instanceof Promise) {
-        return result.then((result2) => {
-          payload.value = result2.issues.length === 0;
+        return result.then((result) => {
+          payload.value = result.issues.length === 0;
           return payload;
         });
       }
@@ -3557,13 +3559,13 @@ var require_schemas = __commonJS((exports) => {
     inst._zod.parse = (payload, ctx) => {
       const result = def.innerType._zod.run(payload, ctx);
       if (result instanceof Promise) {
-        return result.then((result2) => {
-          payload.value = result2.value;
-          if (result2.issues.length) {
+        return result.then((result) => {
+          payload.value = result.value;
+          if (result.issues.length) {
             payload.value = def.catchValue({
               ...payload,
               error: {
-                issues: result2.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config()))
+                issues: result.issues.map((iss) => util.finalizeIssue(iss, ctx, core.config()))
               },
               input: payload.value
             });
@@ -3609,7 +3611,7 @@ var require_schemas = __commonJS((exports) => {
     inst._zod.parse = (payload, ctx) => {
       const left = def.in._zod.run(payload, ctx);
       if (left instanceof Promise) {
-        return left.then((left2) => handlePipeResult(left2, def, ctx));
+        return left.then((left) => handlePipeResult(left, def, ctx));
       }
       return handlePipeResult(left, def, ctx);
     };
@@ -3711,7 +3713,7 @@ var require_schemas = __commonJS((exports) => {
       const input = payload.value;
       const r = def.fn(input);
       if (r instanceof Promise) {
-        return r.then((r2) => handleRefineResult(r2, payload, input, inst));
+        return r.then((r) => handleRefineResult(r, payload, input, inst));
       }
       handleRefineResult(r, payload, input, inst);
       return;
@@ -3734,7 +3736,7 @@ var require_schemas = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ar.cjs
-var require_ar = __commonJS((exports) => {
+var require_ar = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -3888,7 +3890,7 @@ var require_ar = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/az.cjs
-var require_az = __commonJS((exports) => {
+var require_az = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -4041,7 +4043,7 @@ var require_az = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/be.cjs
-var require_be = __commonJS((exports) => {
+var require_be = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -4243,7 +4245,7 @@ var require_be = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ca.cjs
-var require_ca = __commonJS((exports) => {
+var require_ca = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -4398,7 +4400,7 @@ var require_ca = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/cs.cjs
-var require_cs = __commonJS((exports) => {
+var require_cs = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -4571,7 +4573,7 @@ var require_cs = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/de.cjs
-var require_de = __commonJS((exports) => {
+var require_de = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -4725,7 +4727,7 @@ var require_de = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/en.cjs
-var require_en = __commonJS((exports) => {
+var require_en = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -4882,7 +4884,7 @@ var require_en = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/eo.cjs
-var require_eo = __commonJS((exports) => {
+var require_eo = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -5038,7 +5040,7 @@ var require_eo = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/es.cjs
-var require_es = __commonJS((exports) => {
+var require_es = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -5192,7 +5194,7 @@ var require_es = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/fa.cjs
-var require_fa = __commonJS((exports) => {
+var require_fa = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -5352,7 +5354,7 @@ var require_fa = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/fi.cjs
-var require_fi = __commonJS((exports) => {
+var require_fi = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -5512,7 +5514,7 @@ var require_fi = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/fr.cjs
-var require_fr = __commonJS((exports) => {
+var require_fr = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -5666,7 +5668,7 @@ var require_fr = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/fr-CA.cjs
-var require_fr_CA = __commonJS((exports) => {
+var require_fr_CA = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -5821,7 +5823,7 @@ var require_fr_CA = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/he.cjs
-var require_he = __commonJS((exports) => {
+var require_he = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -5975,7 +5977,7 @@ var require_he = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/hu.cjs
-var require_hu = __commonJS((exports) => {
+var require_hu = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -6129,7 +6131,7 @@ var require_hu = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/id.cjs
-var require_id = __commonJS((exports) => {
+var require_id = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -6283,7 +6285,7 @@ var require_id = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/it.cjs
-var require_it = __commonJS((exports) => {
+var require_it = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -6437,7 +6439,7 @@ var require_it = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ja.cjs
-var require_ja = __commonJS((exports) => {
+var require_ja = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -6590,7 +6592,7 @@ var require_ja = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/kh.cjs
-var require_kh = __commonJS((exports) => {
+var require_kh = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -6745,7 +6747,7 @@ var require_kh = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ko.cjs
-var require_ko = __commonJS((exports) => {
+var require_ko = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -6904,7 +6906,7 @@ var require_ko = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/mk.cjs
-var require_mk = __commonJS((exports) => {
+var require_mk = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -7059,7 +7061,7 @@ var require_mk = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ms.cjs
-var require_ms = __commonJS((exports) => {
+var require_ms = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -7213,7 +7215,7 @@ var require_ms = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/nl.cjs
-var require_nl = __commonJS((exports) => {
+var require_nl = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -7368,7 +7370,7 @@ var require_nl = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/no.cjs
-var require_no = __commonJS((exports) => {
+var require_no = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -7522,7 +7524,7 @@ var require_no = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ota.cjs
-var require_ota = __commonJS((exports) => {
+var require_ota = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -7676,7 +7678,7 @@ var require_ota = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ps.cjs
-var require_ps = __commonJS((exports) => {
+var require_ps = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -7836,7 +7838,7 @@ var require_ps = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/pl.cjs
-var require_pl = __commonJS((exports) => {
+var require_pl = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -7991,7 +7993,7 @@ var require_pl = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/pt.cjs
-var require_pt = __commonJS((exports) => {
+var require_pt = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -8145,7 +8147,7 @@ var require_pt = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ru.cjs
-var require_ru = __commonJS((exports) => {
+var require_ru = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -8347,7 +8349,7 @@ var require_ru = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/sl.cjs
-var require_sl = __commonJS((exports) => {
+var require_sl = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -8502,7 +8504,7 @@ var require_sl = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/sv.cjs
-var require_sv = __commonJS((exports) => {
+var require_sv = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -8658,7 +8660,7 @@ var require_sv = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ta.cjs
-var require_ta = __commonJS((exports) => {
+var require_ta = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -8813,7 +8815,7 @@ var require_ta = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/th.cjs
-var require_th = __commonJS((exports) => {
+var require_th = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -8968,7 +8970,7 @@ var require_th = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/tr.cjs
-var require_tr = __commonJS((exports) => {
+var require_tr = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -9123,7 +9125,7 @@ var require_tr = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ua.cjs
-var require_ua = __commonJS((exports) => {
+var require_ua = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -9277,7 +9279,7 @@ var require_ua = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/ur.cjs
-var require_ur = __commonJS((exports) => {
+var require_ur = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -9432,7 +9434,7 @@ var require_ur = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/vi.cjs
-var require_vi = __commonJS((exports) => {
+var require_vi = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -9586,7 +9588,7 @@ var require_vi = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/zh-CN.cjs
-var require_zh_CN = __commonJS((exports) => {
+var require_zh_CN = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -9740,7 +9742,7 @@ var require_zh_CN = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/zh-TW.cjs
-var require_zh_TW = __commonJS((exports) => {
+var require_zh_TW = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -9895,7 +9897,7 @@ var require_zh_TW = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/locales/index.cjs
-var require_locales = __commonJS((exports) => {
+var require_locales = __commonJS(function(exports) {
   var __importDefault = exports && exports.__importDefault || function(mod) {
     return mod && mod.__esModule ? mod : { default: mod };
   };
@@ -10060,7 +10062,7 @@ var require_locales = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/registries.cjs
-var require_registries = __commonJS((exports) => {
+var require_registries = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.globalRegistry = exports.$ZodRegistry = exports.$input = exports.$output = undefined;
   exports.registry = registry;
@@ -10117,7 +10119,7 @@ var require_registries = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/api.cjs
-var require_api = __commonJS((exports) => {
+var require_api = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -11124,7 +11126,7 @@ var require_api = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/function.cjs
-var require_function = __commonJS((exports) => {
+var require_function = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -11237,7 +11239,7 @@ var require_function = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/to-json-schema.cjs
-var require_to_json_schema = __commonJS((exports) => {
+var require_to_json_schema = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.JSONSchemaGenerator = undefined;
   exports.toJSONSchema = toJSONSchema;
@@ -11729,7 +11731,7 @@ var require_to_json_schema = __commonJS((exports) => {
         const defsSegment = this.target === "draft-2020-12" ? "$defs" : "definitions";
         if (params.external) {
           const externalId = params.external.registry.get(entry[0])?.id;
-          const uriGenerator = params.external.uri ?? ((id2) => id2);
+          const uriGenerator = params.external.uri ?? ((id) => id);
           if (externalId) {
             return { ref: uriGenerator(externalId) };
           }
@@ -11754,11 +11756,11 @@ var require_to_json_schema = __commonJS((exports) => {
         seen.def = { ...seen.schema };
         if (defId)
           seen.defId = defId;
-        const schema2 = seen.schema;
-        for (const key in schema2) {
-          delete schema2[key];
+        const schema = seen.schema;
+        for (const key in schema) {
+          delete schema[key];
         }
-        schema2.$ref = ref;
+        schema.$ref = ref;
       };
       if (params.cycles === "throw") {
         for (const entry of this.seen.entries()) {
@@ -11797,30 +11799,30 @@ var require_to_json_schema = __commonJS((exports) => {
           }
         }
       }
-      const flattenRef = (zodSchema, params2) => {
+      const flattenRef = (zodSchema, params) => {
         const seen = this.seen.get(zodSchema);
-        const schema2 = seen.def ?? seen.schema;
-        const _cached = { ...schema2 };
+        const schema = seen.def ?? seen.schema;
+        const _cached = { ...schema };
         if (seen.ref === null) {
           return;
         }
         const ref = seen.ref;
         seen.ref = null;
         if (ref) {
-          flattenRef(ref, params2);
+          flattenRef(ref, params);
           const refSchema = this.seen.get(ref).schema;
-          if (refSchema.$ref && params2.target === "draft-7") {
-            schema2.allOf = schema2.allOf ?? [];
-            schema2.allOf.push(refSchema);
+          if (refSchema.$ref && params.target === "draft-7") {
+            schema.allOf = schema.allOf ?? [];
+            schema.allOf.push(refSchema);
           } else {
-            Object.assign(schema2, refSchema);
-            Object.assign(schema2, _cached);
+            Object.assign(schema, refSchema);
+            Object.assign(schema, _cached);
           }
         }
         if (!seen.isParent)
           this.override({
             zodSchema,
-            jsonSchema: schema2,
+            jsonSchema: schema,
             path: seen.path ?? []
           });
       };
@@ -11868,11 +11870,11 @@ var require_to_json_schema = __commonJS((exports) => {
   exports.JSONSchemaGenerator = JSONSchemaGenerator;
   function toJSONSchema(input, _params) {
     if (input instanceof registries_js_1.$ZodRegistry) {
-      const gen2 = new JSONSchemaGenerator(_params);
+      const gen = new JSONSchemaGenerator(_params);
       const defs = {};
       for (const entry of input._idmap.entries()) {
         const [_, schema] = entry;
-        gen2.process(schema);
+        gen.process(schema);
       }
       const schemas = {};
       const external = {
@@ -11882,13 +11884,13 @@ var require_to_json_schema = __commonJS((exports) => {
       };
       for (const entry of input._idmap.entries()) {
         const [key, schema] = entry;
-        schemas[key] = gen2.emit(schema, {
+        schemas[key] = gen.emit(schema, {
           ..._params,
           external
         });
       }
       if (Object.keys(defs).length > 0) {
-        const defsSegment = gen2.target === "draft-2020-12" ? "$defs" : "definitions";
+        const defsSegment = gen.target === "draft-2020-12" ? "$defs" : "definitions";
         schemas.__shared = {
           [defsSegment]: defs
         };
@@ -11999,12 +12001,12 @@ var require_to_json_schema = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/core/json-schema.cjs
-var require_json_schema = __commonJS((exports) => {
+var require_json_schema = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
 });
 
 // node_modules/zod/v4/core/index.cjs
-var require_core2 = __commonJS((exports) => {
+var require_core2 = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -12062,7 +12064,7 @@ var require_core2 = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/classic/checks.cjs
-var require_checks2 = __commonJS((exports) => {
+var require_checks2 = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.toUpperCase = exports.toLowerCase = exports.trim = exports.normalize = exports.overwrite = exports.mime = exports.property = exports.endsWith = exports.startsWith = exports.includes = exports.uppercase = exports.lowercase = exports.regex = exports.length = exports.minLength = exports.maxLength = exports.size = exports.minSize = exports.maxSize = exports.multipleOf = exports.nonnegative = exports.nonpositive = exports.negative = exports.positive = exports.gte = exports.gt = exports.lte = exports.lt = undefined;
   var index_js_1 = require_core2();
@@ -12153,7 +12155,7 @@ var require_checks2 = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/classic/iso.cjs
-var require_iso = __commonJS((exports) => {
+var require_iso = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -12225,7 +12227,7 @@ var require_iso = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/classic/errors.cjs
-var require_errors3 = __commonJS((exports) => {
+var require_errors3 = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -12276,7 +12278,7 @@ var require_errors3 = __commonJS((exports) => {
         value: (issue) => inst.issues.push(issue)
       },
       addIssues: {
-        value: (issues2) => inst.issues.push(...issues2)
+        value: (issues) => inst.issues.push(...issues)
       },
       isEmpty: {
         get() {
@@ -12292,7 +12294,7 @@ var require_errors3 = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/classic/parse.cjs
-var require_parse2 = __commonJS((exports) => {
+var require_parse2 = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -12336,7 +12338,7 @@ var require_parse2 = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/classic/schemas.cjs
-var require_schemas2 = __commonJS((exports) => {
+var require_schemas2 = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -12462,16 +12464,16 @@ var require_schemas2 = __commonJS((exports) => {
     core.$ZodType.init(inst, def);
     inst.def = def;
     Object.defineProperty(inst, "_def", { value: def });
-    inst.check = (...checks2) => {
+    inst.check = (...checks) => {
       return inst.clone({
         ...def,
         checks: [
           ...def.checks ?? [],
-          ...checks2.map((ch) => typeof ch === "function" ? { _zod: { check: ch, def: { check: "custom" }, onattach: [] } } : ch)
+          ...checks.map((ch) => typeof ch === "function" ? { _zod: { check: ch, def: { check: "custom" }, onattach: [] } } : ch)
         ]
       });
     };
-    inst.clone = (def2, params) => core.clone(inst, def2, params);
+    inst.clone = (def, params) => core.clone(inst, def, params);
     inst.brand = () => inst;
     inst.register = (reg, meta) => {
       reg.add(inst, meta);
@@ -12482,7 +12484,7 @@ var require_schemas2 = __commonJS((exports) => {
     inst.parseAsync = async (data, params) => parse.parseAsync(inst, data, params, { callee: inst.parseAsync });
     inst.safeParseAsync = async (data, params) => parse.safeParseAsync(inst, data, params);
     inst.spa = inst.safeParseAsync;
-    inst.refine = (check2, params) => inst.check(refine(check2, params));
+    inst.refine = (check, params) => inst.check(refine(check, params));
     inst.superRefine = (refinement) => inst.check(superRefine(refinement));
     inst.overwrite = (fn) => inst.check(checks.overwrite(fn));
     inst.optional = () => optional(inst);
@@ -12493,8 +12495,8 @@ var require_schemas2 = __commonJS((exports) => {
     inst.or = (arg) => union([inst, arg]);
     inst.and = (arg) => intersection(inst, arg);
     inst.transform = (tx) => pipe(inst, transform(tx));
-    inst.default = (def2) => _default(inst, def2);
-    inst.prefault = (def2) => prefault(inst, def2);
+    inst.default = (def) => _default(inst, def);
+    inst.prefault = (def) => prefault(inst, def);
     inst.catch = (params) => _catch(inst, params);
     inst.pipe = (target) => pipe(inst, target);
     inst.readonly = () => readonly(inst);
@@ -13155,8 +13157,8 @@ var require_schemas2 = __commonJS((exports) => {
       };
       const output = def.transform(payload.value, payload);
       if (output instanceof Promise) {
-        return output.then((output2) => {
-          payload.value = output2;
+        return output.then((output) => {
+          payload.value = output;
           return payload;
         });
       }
@@ -13392,7 +13394,7 @@ var require_schemas2 = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/classic/compat.cjs
-var require_compat = __commonJS((exports) => {
+var require_compat = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -13461,7 +13463,7 @@ var require_compat = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/classic/coerce.cjs
-var require_coerce = __commonJS((exports) => {
+var require_coerce = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -13520,7 +13522,7 @@ var require_coerce = __commonJS((exports) => {
 });
 
 // node_modules/zod/v4/classic/external.cjs
-var require_external = __commonJS((exports) => {
+var require_external = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -13640,7 +13642,7 @@ var require_external = __commonJS((exports) => {
 });
 
 // node_modules/zod/index.cjs
-var require_zod = __commonJS((exports) => {
+var require_zod = __commonJS(function(exports) {
   var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
     if (k2 === undefined)
       k2 = k;
@@ -13687,7 +13689,7 @@ var require_zod = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/validation.js
-var require_validation = __commonJS((exports) => {
+var require_validation = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.ConclusionQueryParamsSchema = exports.LimitSchema = exports.WorkspaceConfigSchema = exports.WorkspaceMetadataSchema = exports.MessageAdditionToApiSchema = exports.MessageAdditionSchema = exports.PeerRemovalSchema = exports.PeerAdditionToApiSchema = exports.PeerAdditionSchema = exports.PeerCardContentSchema = exports.CardTargetSchema = exports.PeerGetRepresentationParamsSchema = exports.GetRepresentationParamsSchema = exports.FileUploadSchema = exports.QueueStatusOptionsSchema = exports.ContextParamsSchema = exports.RepresentationOptionsSchema = exports.ChatQuerySchema = exports.FilterSchema = exports.SearchQueryLikeSchema = exports.SearchQueryObjectSchema = exports.SearchQuerySchema = exports.MessageInputSchema = exports.MessageConfigurationSchema = exports.MessageMetadataSchema = exports.MessageContentSchema = exports.SessionPeerConfigSchema = exports.SessionIdSchema = exports.SessionConfigSchema = exports.DreamConfigSchema = exports.SummaryConfigSchema = exports.PeerCardConfigSchema = exports.ReasoningConfigSchema = exports.SessionMetadataSchema = exports.PeerIdSchema = exports.PeerConfigSchema = exports.PeerMetadataSchema = exports.HonchoConfigSchema = exports.WorkspaceIdSchema = undefined;
   exports.normalizeSearchQuery = normalizeSearchQuery;
@@ -14095,7 +14097,7 @@ var require_validation = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/conclusions.js
-var require_conclusions = __commonJS((exports) => {
+var require_conclusions = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.ConclusionScope = exports.Conclusion = undefined;
   var api_version_1 = require_api_version();
@@ -14233,7 +14235,7 @@ var require_conclusions = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/http/streaming.js
-var require_streaming = __commonJS((exports) => {
+var require_streaming = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.DialecticStreamResponse = undefined;
   exports.parseSSE = parseSSE;
@@ -14331,7 +14333,7 @@ var require_streaming = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/session_context.js
-var require_session_context = __commonJS((exports) => {
+var require_session_context = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.SessionContext = exports.SessionSummaries = exports.Summary = undefined;
   var message_1 = require_message();
@@ -14451,7 +14453,7 @@ var require_session_context = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/utils.js
-var require_utils = __commonJS((exports) => {
+var require_utils = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.resolveId = resolveId;
   exports.transformQueueStatus = transformQueueStatus;
@@ -14483,7 +14485,7 @@ var require_utils = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/session.js
-var require_session = __commonJS((exports) => {
+var require_session = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Session = undefined;
   var api_version_1 = require_api_version();
@@ -14868,7 +14870,7 @@ var require_session = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/peer.js
-var require_peer = __commonJS((exports) => {
+var require_peer = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Peer = exports.PeerContext = undefined;
   var api_version_1 = require_api_version();
@@ -15164,7 +15166,7 @@ var require_peer = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/client.js
-var require_client2 = __commonJS((exports) => {
+var require_client2 = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Honcho = undefined;
   var api_version_1 = require_api_version();
@@ -15475,7 +15477,7 @@ var require_client2 = __commonJS((exports) => {
 });
 
 // node_modules/@honcho-ai/sdk/dist/index.js
-var require_dist = __commonJS((exports) => {
+var require_dist = __commonJS(function(exports) {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.Summary = exports.SessionSummaries = exports.SessionContext = exports.Session = exports.PeerContext = exports.Peer = exports.Page = exports.Message = exports.DialecticStreamResponse = exports.UnprocessableEntityError = exports.TimeoutError = exports.ServerError = exports.RateLimitError = exports.PermissionDeniedError = exports.NotFoundError = exports.HonchoError = exports.ConnectionError = exports.ConflictError = exports.BadRequestError = exports.AuthenticationError = exports.ConclusionScope = exports.Conclusion = exports.Honcho = undefined;
   var client_1 = require_client2();
@@ -15562,8 +15564,8 @@ var require_dist = __commonJS((exports) => {
 var import_sdk = __toESM(require_dist(), 1);
 
 // src/config.ts
-import { homedir as homedir2 } from "os";
-import { join as join3, basename, dirname, resolve, sep } from "path";
+import { homedir as homedir3 } from "os";
+import { join as join4, basename, dirname, resolve, sep } from "path";
 import { fileURLToPath } from "url";
 import { existsSync as existsSync3, mkdirSync as mkdirSync2, readFileSync as readFileSync2, statSync, writeFileSync as writeFileSync2 } from "fs";
 
@@ -15684,6 +15686,11 @@ async function addMessagesBatched(session, messages, resolveFallback) {
     }
   }
 }
+
+// src/state.ts
+import { homedir as homedir2 } from "os";
+import { join as join3 } from "path";
+var DIR = join3(homedir2(), ".honcho");
 // node_modules/@honcho-ai/harness-plugin-core/src/telemetry.ts
 var HEADER_HOST = "X-Honcho-Host";
 var HEADER_PLUGIN = "X-Honcho-Plugin";
@@ -15695,7 +15702,7 @@ function sanitize(value) {
   return s || undefined;
 }
 function token(name, ver) {
-  const clean = (v2) => sanitize(v2)?.replace(/[\s()/;]+/g, "-");
+  const clean = (v) => sanitize(v)?.replace(/[\s()/;]+/g, "-");
   const n = clean(name);
   const v = clean(ver);
   if (n && v)
@@ -15775,8 +15782,8 @@ function deepEqual(a, b) {
   }
   return true;
 }
-var CONFIG_DIR = join3(homedir2(), ".honcho");
-var CONFIG_FILE = join3(CONFIG_DIR, "config.json");
+var CONFIG_DIR = join4(homedir3(), ".honcho");
+var CONFIG_FILE = join4(CONFIG_DIR, "config.json");
 function getConfigDir() {
   return CONFIG_DIR;
 }
@@ -15789,7 +15796,7 @@ function configExists() {
 function getPluginVersion() {
   const root = process.env.CLAUDE_PLUGIN_ROOT;
   const candidates = [
-    ...root ? [join3(root, ".claude-plugin", "plugin.json")] : [],
+    ...root ? [join4(root, ".claude-plugin", "plugin.json")] : [],
     fileURLToPath(new URL("../.claude-plugin/plugin.json", import.meta.url))
   ];
   for (const manifest of candidates) {
@@ -15900,6 +15907,9 @@ function mergeWithEnvVars(config) {
   if (process.env.HONCHO_AI_PEER) {
     config.aiPeer = process.env.HONCHO_AI_PEER;
   }
+  if (process.env.HONCHO_SAVE_MESSAGES !== undefined) {
+    config.saveMessages = process.env.HONCHO_SAVE_MESSAGES !== "false";
+  }
   if (process.env.HONCHO_ENABLED === "false") {
     config.enabled = false;
   }
@@ -15977,14 +15987,14 @@ function saveRootField(field, value) {
   writeFileSync2(CONFIG_FILE, JSON.stringify(existing, null, 2));
 }
 function getClaudeSettingsPath() {
-  return join3(homedir2(), ".claude", "settings.json");
+  return join4(homedir3(), ".claude", "settings.json");
 }
 function getClaudeSettingsDir() {
-  return join3(homedir2(), ".claude");
+  return join4(homedir3(), ".claude");
 }
 function resolveWorktreeMainRoot(dir) {
   try {
-    const gitPath = join3(dir, ".git");
+    const gitPath = join4(dir, ".git");
     if (!statSync(gitPath).isFile())
       return null;
     const match = readFileSync2(gitPath, "utf-8").match(/^gitdir:\s*(.+?)\s*$/m);
@@ -16009,7 +16019,7 @@ function worktreeMainRootFor(cwd) {
   try {
     let dir = resolve(cwd);
     for (let i = 0;i < MAX_GIT_WALK_UP; i++) {
-      if (existsSync3(join3(dir, ".git")))
+      if (existsSync3(join4(dir, ".git")))
         return resolveWorktreeMainRoot(dir);
       const parent = dirname(dir);
       if (parent === dir)
@@ -16247,5 +16257,5 @@ async function status() {
 // src/skills/status-runner.ts
 await status();
 
-//# debugId=88948183EDA325D564756E2164756E21
+//# debugId=F0D26CFAC705433564756E2164756E21
 //# sourceMappingURL=status-runner.js.map
