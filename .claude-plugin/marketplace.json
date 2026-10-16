@@ -1,0 +1,18 @@
+{
+  "name": "honcho",
+  "owner": { "name": "Saulo Vallory (fork of Plastic Labs claude-honcho)" },
+  "metadata": {
+    "description": "Fork of plastic-labs/claude-honcho with HONCHO_AI_PEER override (PR #157) until it lands upstream",
+    "version": "0.3.4-svallory.1"
+  },
+  "plugins": [
+    {
+      "name": "honcho",
+      "source": "./plugins/honcho",
+      "description": "Persistent memory for Claude Code sessions using Honcho (fork build, main + PR #157)",
+      "version": "0.3.4-svallory.1",
+      "keywords": ["memory", "context", "persistence"],
+      "strict": false
+    }
+  ]
+}
